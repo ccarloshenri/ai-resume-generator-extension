@@ -1,82 +1,24 @@
-# AI Resume Generator — Chrome Extension
+# AI Resume Generator
 
-A Chrome Extension (Manifest V3) that analyzes job postings and generates tailored resumes using AI, based on your actual resume and LinkedIn profile.
+A Chrome extension that reads a job posting, compares it against your resume and LinkedIn profile, and uses AI to give you a match score and a tailored resume — all from your browser, with no backend or account required.
 
-## Features
+---
 
-- **Analyze Match** — Compare any job posting against your profile and get a scored breakdown of matched skills, missing skills, and actionable suggestions.
-- **Generate Tailored Resume** — Produce an ATS-optimized resume customized for a specific job, rewriting your summary and highlighting relevant experience.
-- **Multi-provider AI** — Works with OpenAI (GPT-4o Mini), Google Gemini (1.5 Flash), and Anthropic Claude (see CORS note below).
-- **Language selector** — All outputs can be in English or Portuguese (BR), regardless of input language.
-- **No backend** — All requests go directly from your browser to the AI provider using your own API key.
-- **Private** — Your resume, LinkedIn profile, and API key are stored only in your local browser storage (`chrome.storage.local`).
-
-## Tech Stack
-
-- Chrome Extension Manifest V3
-- React 18 + TypeScript
-- Vite 6
-- TailwindCSS 3
-- Clean architecture with separated services, types, and UI
-
-## Project Structure
-
-```
-src/
-  popup/
-    App.tsx                  # Root component + state-based router
-    index.tsx                # React entry point
-    index.css                # Tailwind base styles
-    context/
-      AppContext.tsx          # Global state (settings, profile, results)
-    components/
-      BottomNav.tsx
-      ErrorBanner.tsx
-      LoadingSpinner.tsx
-      MatchScoreBar.tsx
-    pages/
-      SettingsPage.tsx        # API key, provider, language
-      ProfilePage.tsx         # Resume + LinkedIn profile input
-      AnalyzePage.tsx         # Job scan + AI actions
-      ResultPage.tsx          # Analysis results + generated resume
-  content/
-    jobScanner.ts             # Content script — detects job postings
-  services/
-    ai/
-      AIProvider.ts           # Interface
-      OpenAIProvider.ts
-      GeminiProvider.ts
-      ClaudeProvider.ts
-      AIProviderFactory.ts
-    resume/
-      promptBuilder.ts        # Builds honest AI prompts
-      atsAnalyzer.ts          # Parses analysis JSON from AI
-      resumeGenerator.ts
-  storage/
-    chromeStorage.ts          # Typed chrome.storage wrappers
-  types/
-    Resume.ts
-    LinkedInProfile.ts
-    JobPosting.ts
-    AnalysisResult.ts
-    enums.ts
-```
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
 - Node.js 18+
 - npm 9+
-- A Chromium-based browser (Chrome, Edge, Brave, etc.)
+- Chrome, Edge, Brave, or any other Chromium-based browser
 
-### Install dependencies
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### Build the extension
+### 2. Build the extension
 
 ```bash
 npm run build
@@ -84,78 +26,101 @@ npm run build
 
 This produces a `dist/` folder with the compiled extension.
 
-### Load in Chrome
+### 3. Load in Chrome
 
 1. Open `chrome://extensions` in your browser.
-2. Enable **Developer mode** (top-right toggle).
+2. Enable **Developer mode** (toggle in the top-right corner).
 3. Click **Load unpacked**.
 4. Select the `dist/` folder.
 
-The extension icon will appear in the toolbar.
+The extension icon will appear in your toolbar. Click it to open the popup.
 
-### Development (watch mode)
+---
 
-```bash
-npm run dev
-```
+## How to use
 
-Vite will rebuild on every file change. Reload the extension in `chrome://extensions` after each rebuild (click the refresh icon on the extension card).
+The extension has four tabs. Work through them in order the first time.
 
-### Type check
+### Settings
 
-```bash
-npm run type-check
-```
+This is where you connect your AI provider.
 
-## Configuration
-
-### Settings tab
-
-1. Select your **AI Provider** (OpenAI recommended for best browser compatibility).
+1. Choose a **provider** — OpenAI is recommended (see AI provider notes below).
 2. Paste your **API key**.
-3. Choose the **output language** (English or Portuguese).
+3. Choose the **output language** — English or Portuguese (BR).
 4. Click **Save Settings**.
 
-### Profile tab
+You only need to do this once. Your key is stored locally in your browser and never sent anywhere except directly to the AI provider you selected.
 
-1. Paste your full **resume text**.
-2. Paste your **LinkedIn profile** text (About section + experience).
+### Profile
+
+This is the data the AI uses to write your resume and assess your fit.
+
+1. Paste your full **resume text** — the more complete, the better.
+2. Paste your **LinkedIn profile** text — the About section and your work experience are the most useful parts.
 3. Click **Save Profile**.
 
-### Analyze tab
+You can update this at any time. Changes take effect on the next analysis.
 
-Open a job posting page (LinkedIn Jobs, Indeed, Glassdoor, Greenhouse, Lever, etc.) then open the extension popup. The content script will automatically detect the job. If auto-detection fails, paste the job description manually.
+### Analyze
 
-- Click **Analyze Match** to get a scored breakdown.
-- Click **Generate Tailored Resume** to produce an optimized resume.
+This is where you run the analysis.
 
-### Result tab
+1. Navigate to a job posting page (LinkedIn Jobs, Indeed, Glassdoor, Greenhouse, Lever, and most other job boards are supported).
+2. Open the extension popup. It will automatically detect and extract the job description.
+3. If the job was not detected automatically, paste the job description into the text field manually.
+4. Choose what you want:
+   - **Analyze Match** — scores your fit for the role and explains the gaps.
+   - **Generate Tailored Resume** — rewrites your resume to highlight the experience most relevant to this job.
 
-- **Analysis**: Match score (0–100), matched skills, missing skills, suggestions, recommendation.
-- **Resume**: Scrollable resume output with **Copy** and **Download .txt** buttons.
+### Results
 
-## AI Provider Notes
+After running an analysis or generating a resume, the Results tab shows the output.
 
-### OpenAI
+- **Match analysis**: a score from 0 to 100, a list of matched skills, a list of missing skills, specific suggestions for strengthening your application, and an overall recommendation.
+- **Tailored resume**: a full resume text optimized for the job. Use the **Copy** button to paste it into a document, or **Download .txt** to save it as a file.
 
-Recommended. GPT-4o Mini provides excellent quality at low cost. Get a key at <https://platform.openai.com/api-keys>.
+---
+
+## AI provider notes
+
+### OpenAI (recommended)
+
+Uses GPT-4o Mini. Good quality, low cost, and works without any browser compatibility issues. Get a key at <https://platform.openai.com/api-keys>.
 
 ### Google Gemini
 
-Gemini 1.5 Flash is fast and cost-effective. Get a key at <https://aistudio.google.com/app/apikey>.
+Uses Gemini 1.5 Flash. Fast and cost-effective. Get a key at <https://aistudio.google.com/app/apikey>.
 
 ### Anthropic Claude
 
-Claude requires the `anthropic-dangerous-direct-browser-access: true` header for any direct browser call. Even with this header, CORS may still block the request from an extension popup. If you encounter a network error, switch to OpenAI or Gemini.
+Claude requires a special header (`anthropic-dangerous-direct-browser-access: true`) for direct browser calls, and even then CORS may block the request from an extension popup. If you get a network error with Claude, switch to OpenAI or Gemini.
 
-## Honesty Guarantee
+---
 
-The AI prompts contain strict rules that prevent the model from inventing information. The extension:
+## Honesty guarantee
 
-- Never adds skills, companies, certifications, or achievements not present in your source data.
-- Never inflates metrics or numbers.
-- Highlights gaps instead of fabricating experience.
-- Only rephrases and reorganizes real content.
+The AI is explicitly instructed not to invent anything. It will not:
+
+- Add skills, certifications, companies, or achievements that are not in your source data.
+- Inflate numbers or metrics.
+- Fill gaps with fabricated experience.
+
+It only rephrases and reorganizes what you actually provided. Gaps are surfaced honestly, not hidden.
+
+---
+
+## Tips
+
+- **If the job is not detected automatically**, the content script may not have run yet or the page structure may be unusual. Just copy the job description text and paste it manually into the Analyze tab — it works the same way.
+
+- **For better results**, make sure your profile data is complete before running an analysis. A thin resume or a brief LinkedIn summary will produce generic output. The more specific your profile, the more specific the tailored resume.
+
+- **The match score is a guide, not a gate.** A score of 60 with a clear gap list is more useful than a score of 90 with no suggestions. Use the missing skills and suggestions sections to decide what to address in your cover letter or interview prep.
+
+- **Run the analysis fresh for each job.** The extension does not cache results between sessions. If you navigate to a different job posting, open the popup again and click Analyze — it will pick up the new job automatically.
+
+---
 
 ## License
 
